@@ -1,0 +1,165 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+venvs/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~nmos
+*~
+
+# Environment
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+*.summary.json
+
+# Database
+*.sqlite
+*.db
+
+# Runtime
+data/
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+.coverage.*
+
+# Backup directories
+backups/
+
+# Temporary files
+*.tmp
+*.temp
+
+# SSH
+*.key
+id_rsa*
+
+# Docker
+.dockerignore
+Dockerfile*
+.docker-compose*
+
+# Application
+static/
+media/
+
+docker-compose.yml
+docker-compose.prod.yml
+docker-compose.dev.yml
+compose.yaml
+compose.prod.yaml
+compose.dev.yaml
+
+# Secrets
+secrets/
+*.secret
+
+# System
+.DS_Store
+Thumbs.db
+
+# CUDA
+*.cu
+*.cuh
+
+# Custom
+var/
+.log/
+.backup/
+backup*/
+
+# Python path
+.pyenv/
+.pytest_cache/
+.coverage
+.coverage.*
+
+# Project-specific
+.mypy_cache/
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+venvs/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Data
+*.csv
+*.json
+*.yaml
+*.yml
+*.toml
+*.ini
+*.cfg
+
+# Shell
+*.sh
+*.bash
+*.zsh
+
+# Tmp
+/tmp/
+*.part
+*.temp
+
+# Docker cache
+**/.dockerignore
+*.dockerignore
+
+# SSH
+*.pem
+*.key
+id_rsa
+
+# Custom for this project
+config.toml
+settings.yaml
+local.yaml

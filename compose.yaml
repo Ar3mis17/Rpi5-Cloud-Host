@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:17-bookworm
+    container_name: ar3mis-cloud-db
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    volumes:
+      - /mnt/cloud/ar3mis-cloud/postgres:/var/lib/postgresql/data:rw
+    networks:
+      - ar3mis-cloud-internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ar3mis_app -d ar3mis_cloud"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # No ports published — internal only
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ar3mis-cloud-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ./backend/.env
+    volumes:
+      - /mnt/cloud/ar3mis-cloud/files:/mnt/cloud/ar3mis-cloud/files:rw
+    networks:
+      - ar3mis-cloud-internal
+    ports:
+      - "127.0.0.1:8000:8000"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+networks:
+  ar3mis-cloud-internal:
+    driver: bridge
