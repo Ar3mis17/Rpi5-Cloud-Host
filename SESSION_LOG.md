@@ -41,7 +41,7 @@ MILESTONE 4: Models & Schemas
 - models/share.py: Share model (file_id, owner_id, recipient_user_id, share_token_hash, permissions, expires_at, created_at)
 - models/session.py, models/activity_log.py
 - schemas/file.py: Pydantic models for file operations
-- schemas/share.py: Created during this session - ShareCreateRequest, ShareResponse
+- schemas/share.py: ShareCreateRequest, ShareResponse
 
 MILESTONE 5: Authentication System
 ------------------------------------
@@ -119,43 +119,77 @@ SESSION 2 - Date: 2026-11-12 to 2026-11-13
 MILESTONE 14: Caddy Reverse Proxy & HTTPS Configuration
 --------------------------------------------------------
 - Created setup script: /opt/ar3mis-cloud/infra/caddy/setup.sh
+- Downloaded Caddy v2.8.4 ARM64 binary
+- Created integrated Caddyfile with Pi-hole DNS integration
+- Pi-hole FTL runs DNS-only on port 53 (no web interface conflict)
+- Caddy runs as systemd service `caddy-pihole` on ports 80/443
 - Features:
   - Automatic Caddy installation on ARM64 Raspberry Pi
   - Reverse proxy configuration to backend API at 127.0.0.1:8000
-  - HTTPS with ACME (Let's Encrypt) certificate automation
-  - Health check endpoints proxied
-  - Static file serving for Vercel content
-  - Backup system (configuration + logs) with retention (7 days)
-  - SSL certificate renewal automation (weekly)
-  - Log rotation (30 days)
-  - Firewall configuration (ufw)
+  - HTTP/HTTPS with auto_https off for local development
+  - Security headers and rate limiting
+  - Logging with rotation
   - systemd services for reliable startup and monitoring
+- Backend verified: http://localhost/health, http://localhost/api/v1/health, http://localhost/api/v1/
+- Pushed to GitHub Pi5-Cloud-Host repository at branch pi-backend
 
-NEXT STEPS - MILESTONE 15-16:
-- Phase 15: Vercel frontend integration with API contract (expose /etc/caddy/Caddyfile)
+MILESTONE 15: Vercel Frontend Integration (COMPLETED)
+------------------------------------------------------
+- Created complete Next.js 14 frontend application at /opt/ar3mis-cloud/frontend/
+- Tech stack: Next.js 14 (App Router), TypeScript, Tailwind CSS, Zustand, Axios, react-hot-toast, Lucide React
+- Pages:
+  - `/` - Redirects to login or dashboard based on auth state
+  - `/login` - Login/Register form with JWT authentication
+  - `/dashboard` - Main file browser with folder navigation
+- Components:
+  - `FileList.tsx` - File browser with upload progress, folder creation, delete, pagination
+  - `LoginForm.tsx` - Authentication form with validation
+- State Management (Zustand):
+  - `useAuthStore` - User auth state with persistence
+  - `useFileStore` - File listing, folder navigation, breadcrumbs
+  - `useUploadStore` - Chunked upload sessions with progress tracking
+- API Client (`lib/api.ts`):
+  - Axios instance with request/response interceptors
+  - Automatic JWT token refresh on 401
+  - Complete API methods for auth, files, uploads, shares
+- Caddy Configuration Updated:
+  - Proxies `/api/*` → Backend (127.0.0.1:8000)
+  - Proxies `/health` → Backend health
+  - Proxies `/*` → Vercel Frontend (configured for `ar3mis-cloud.vercel.app`)
+  - Static asset paths `/static/*`, `/_next/*` proxied to Vercel
+- Deployment Scripts:
+  - `frontend/deploy-vercel.sh` - Automated Vercel deployment
+  - `.env.production` / `.env.local` - Environment configs
+  - `vercel.json` - Vercel configuration with rewrites
+  - `frontend/README.md` - Complete documentation
+
+NEXT STEPS - MILESTONE 16:
 - Phase 16: Backups, monitoring, and production hardening
 - Complete forgot/reset password flow
 - File sharing endpoints: GET /shares/, DELETE /shares/{share_id}/, GET /public/{token}/
 - Session cleanup and expired session removal
-- Expose /etc/caddy/Caddyfile to git for Vercel config
-- Integrate frontend with backend API endpoints
+- Configure production domain and SSL certificates
+- Set up monitoring (Prometheus/Grafana or similar)
+- Configure automated backups for PostgreSQL and file storage
 
 FILES CREATED IN THIS SESSION:
-- /opt/ar3mis-cloud/infra/caddy/setup.sh
+- /opt/ar3mis-cloud/frontend/ (complete Next.js 14 app)
+- /opt/ar3mis-cloud/caddy/config/Caddyfile (updated for Vercel proxy)
+- /opt/ar3mis-cloud/frontend/deploy-vercel.sh
 
 FILES MODIFIED IN THIS SESSION:
-- /opt/ar3mis-cloud/SKIPS.md (if applicable)
+- /opt/ar3mis-cloud/SESSION_LOG.md (updated)
 
 CURRENT STATUS:
-- Backend API: 127.0.0.1:8000
+- Backend API: 127.0.0.1:8000 (Docker)
+- Caddy Proxy: Ports 80/443 (systemd service `caddy-pihole`)
 - PostgreSQL: Internal Docker network
 - FreeLLMAPI: 127.0.0.1:3001 (preserved)
 - SSD (/mnt/cloud): ext4, UUID unchanged
-- Caddy: installer script created (needs execution)
-- Phase 14: Setup script created (script created, NOT executed)
-- Ready to execute Caddy setup or proceed with Phase 15/16
+- Frontend: Ready for Vercel deployment
+- Git: Latest code pushed to `pi-backend` branch
 
 GIT STATUS:
 - Branch: pi-backend
 - Remote: https://github.com/Ar3mis17/Rpi5-Cloud-Host.git
-- Commit: 2e5c21c - "Ar3mis Cloud backend implementation - Phase 1-13 complete"
+- Latest Commit: b6210ff - "Update Caddy config for Vercel frontend proxy"
