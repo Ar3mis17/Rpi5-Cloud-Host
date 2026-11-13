@@ -70,6 +70,7 @@ interface FileState {
   addFile: (file: File) => void;
   removeFile: (fileId: number) => void;
   setLoading: (loading: boolean) => void;
+  loadFiles: (page?: number, pageSize?: number) => Promise<void>;
 }
 
 interface UploadState {
@@ -98,7 +99,7 @@ export const useAuthStore = create<AuthState>()(
   )
 );
 
-export const useFileStore = create<FileState>((set) => ({
+export const useFileStore = create<FileState>((set, get) => ({
   files: [],
   currentFolder: null,
   breadcrumbs: [{ id: null, name: 'Root' }],
@@ -133,6 +134,17 @@ export const useFileStore = create<FileState>((set) => ({
   removeFile: (fileId) =>
     set((state) => ({ files: state.files.filter((f) => f.id !== fileId) })),
   setLoading: (isLoading) => set({ isLoading }),
+  loadFiles: async (page = 1, pageSize = 20) => {
+    set({ isLoading: true });
+    try {
+      const { api } = await import('@/lib/api');
+      const response = await api.listFiles(get().currentFolder, page, pageSize);
+      get().setFiles(response);
+    } catch (error) {
+      set({ isLoading: false });
+      throw error;
+    }
+  },
 }));
 
 export const useUploadStore = create<UploadState>((set) => ({
