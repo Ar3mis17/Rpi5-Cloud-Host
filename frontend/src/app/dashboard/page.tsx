@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore, useFileStore } from '@/lib/store';
 import { api } from '@/lib/api';
 import { LogOut, Menu, X, ChevronLeft } from 'lucide-react';
-import FileList from './FileList';
+import FileList from '@/components/FileList';
 import toast from 'react-hot-toast';
 
 export default function Dashboard() {
