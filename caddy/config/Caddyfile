@@ -1,23 +1,44 @@
-cloud.ar3mis.com {
-    @pihole path /admin /pihole /login
-    @api path /api
+# Ar3mis Cloud - Caddy Reverse Proxy Configuration
+#
+# This configuration proxies:
+# - /api/* → Ar3mis Cloud Backend API (port 8000)
+# - /health → Backend health check
+#
+# Pi-hole runs DNS-only on port 53 (no web interface)
+#
+# For production with real domain:
+# 1. Replace :80 with your domain (e.g., cloud.ar3mis.com)
+# 2. Configure DNS A/AAAA records for the domain
+# 3. Remove 'auto_https off' to enable automatic TLS
+
+{
+    auto_https off
+}
+
+:80 {
+    @api path /api*
     @health path /health
 
-    handle @pihole {
-        reverse_proxy http://127.0.0.1:8080 {
+    handle @api {
+        reverse_proxy http://127.0.0.1:8000 {
             transport http
+            header_up X-Real-IP {remote_host}
         }
     }
 
-    handle @api {
+    handle @health {
         reverse_proxy http://127.0.0.1:8000 {
             transport http
         }
     }
 
-    handle @health {
-        reverse_proxy http://127.0.0.1:8000/health {
-            transport http
+    # Logging
+    log {
+        output file /var/log/caddy/access.log {
+            roll_size 100mb
+            roll_keep 7
+            roll_local_time
         }
+        format json
     }
 }
