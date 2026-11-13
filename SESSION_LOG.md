@@ -101,36 +101,61 @@ MILESTONE 12: File Storage Engine & Chunked Uploads
 - Storage quota enforcement before uploads
 - Temp directory cleanup after completion
 
-MILESTONE 13: Sharing and Permissions (Current Session)
----------------------------------------------------------
+MILESTONE 13: Sharing and Permissions
+-----------------------------------------
 - schemas/share.py: ShareCreateRequest, ShareResponse models
 - api/shares.py: POST /shares endpoint for creating shares with permissions and expiry
 - api/router.py: Updated to include shares router
-- Features:
-  - Share files with other registered users by email
-  - Set permissions (read default)
-  - Optional expiry dates
-  - Share tokens provided upon creation
+- Features: share files by email, set permissions, optional expiry dates
 
-NEXT STEPS - MILESTONE 14-16:
-- Phase 14: Caddy reverse proxy and HTTPS configuration
-- Phase 15: Vercel frontend integration with API contract
+SESSION 2 - Date: 2026-11-12 to 2026-11-13
+---------------------------------------------
+- Created comprehensive SESSION_LOG.md and GIT_STATUS.md
+- Successfully pushed code to GitHub Pi5-Cloud-Host repository at branch pi-backend
+- All credentials excluded from git via .gitignore
+- Session log created: /opt/ar3mis-cloud/SESSION_LOG.md
+- Git status log created: /opt/ar3mis-cloud/GIT_STATUS.md
+
+MILESTONE 14: Caddy Reverse Proxy & HTTPS Configuration
+--------------------------------------------------------
+- Created setup script: /opt/ar3mis-cloud/infra/caddy/setup.sh
+- Features:
+  - Automatic Caddy installation on ARM64 Raspberry Pi
+  - Reverse proxy configuration to backend API at 127.0.0.1:8000
+  - HTTPS with ACME (Let's Encrypt) certificate automation
+  - Health check endpoints proxied
+  - Static file serving for Vercel content
+  - Backup system (configuration + logs) with retention (7 days)
+  - SSL certificate renewal automation (weekly)
+  - Log rotation (30 days)
+  - Firewall configuration (ufw)
+  - systemd services for reliable startup and monitoring
+
+NEXT STEPS - MILESTONE 15-16:
+- Phase 15: Vercel frontend integration with API contract (expose /etc/caddy/Caddyfile)
 - Phase 16: Backups, monitoring, and production hardening
 - Complete forgot/reset password flow
 - File sharing endpoints: GET /shares/, DELETE /shares/{share_id}/, GET /public/{token}/
 - Session cleanup and expired session removal
+- Expose /etc/caddy/Caddyfile to git for Vercel config
+- Integrate frontend with backend API endpoints
 
 FILES CREATED IN THIS SESSION:
-- /opt/ar3mis-cloud/backend/app/schemas/share.py
-- /opt/ar3mis-cloud/backend/app/api/shares.py
+- /opt/ar3mis-cloud/infra/caddy/setup.sh
 
 FILES MODIFIED IN THIS SESSION:
-- /opt/ar3mis-cloud/backend/app/api/router.py (added shares import/inclusion)
-- /opt/ar3mis-cloud/backend/.gitignore (updated/added entries)
+- /opt/ar3mis-cloud/SKIPS.md (if applicable)
 
 CURRENT STATUS:
-- Backend API running at 127.0.0.1:8000
-- PostgreSQL on internal Docker network ar3mis-cloud-internal
-- FreeLLMAPI preserved at 127.0.0.1:3001
-- All Milestones 1-13 complete
-- Ready to proceed with Phase 14 (Caddy/HTTPS)
+- Backend API: 127.0.0.1:8000
+- PostgreSQL: Internal Docker network
+- FreeLLMAPI: 127.0.0.1:3001 (preserved)
+- SSD (/mnt/cloud): ext4, UUID unchanged
+- Caddy: installer script created (needs execution)
+- Phase 14: Setup script created (script created, NOT executed)
+- Ready to execute Caddy setup or proceed with Phase 15/16
+
+GIT STATUS:
+- Branch: pi-backend
+- Remote: https://github.com/Ar3mis17/Rpi5-Cloud-Host.git
+- Commit: 2e5c21c - "Ar3mis Cloud backend implementation - Phase 1-13 complete"
