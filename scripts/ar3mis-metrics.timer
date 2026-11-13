@@ -1,0 +1,11 @@
+[Unit]
+Description=Ar3mis Cloud Metrics Collection Timer (every minute)
+Requires=ar3mis-metrics.service
+
+[Timer]
+OnCalendar=*:0/1
+Persistent=true
+AccuracySec=30s
+
+[Install]
+WantedBy=timers.target

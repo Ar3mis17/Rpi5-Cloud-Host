@@ -1,0 +1,12 @@
+[Unit]
+Description=Daily Ar3mis Cloud Backup Timer
+Requires=ar3mis-backup.service
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+RandomizedDelaySec=30m
+AccuracySec=1h
+
+[Install]
+WantedBy=timers.target

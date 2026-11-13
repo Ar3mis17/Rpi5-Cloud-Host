@@ -1,0 +1,19 @@
+[Unit]
+Description=Ar3mis Cloud Metrics Collection
+Documentation=https://github.com/Ar3mis17/Rpi5-Cloud-Host
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/opt/ar3mis-cloud/scripts/collect-metrics.sh
+WorkingDirectory=/opt/ar3mis-cloud
+StandardOutput=journal
+StandardError=journal
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/prometheus

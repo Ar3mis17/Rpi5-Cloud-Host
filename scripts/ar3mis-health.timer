@@ -1,0 +1,11 @@
+[Unit]
+Description=Ar3mis Cloud Health Check Timer (every 5 minutes)
+Requires=ar3mis-health.service
+
+[Timer]
+OnCalendar=*:0/5
+Persistent=true
+AccuracySec=1m
+
+[Install]
+WantedBy=timers.target
