@@ -3,6 +3,7 @@
 # This configuration proxies:
 # - /api/* → Ar3mis Cloud Backend API (port 8000)
 # - /health → Backend health check
+# - /* → Vercel Frontend (configured via rewrites)
 #
 # Pi-hole runs DNS-only on port 53 (no web interface)
 #
@@ -18,6 +19,7 @@
 :80 {
     @api path /api*
     @health path /health
+    @vercel path /static/* /_next/* /favicon.ico /robots.txt /sitemap.xml
 
     handle @api {
         reverse_proxy http://127.0.0.1:8000 {
@@ -29,6 +31,26 @@
     handle @health {
         reverse_proxy http://127.0.0.1:8000 {
             transport http
+        }
+    }
+
+    # Frontend static assets - proxy to Vercel
+    handle @vercel {
+        reverse_proxy https://ar3mis-cloud.vercel.app {
+            transport http
+            header_up Host {host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    # Default: serve frontend index.html for SPA routing
+    handle {
+        reverse_proxy https://ar3mis-cloud.vercel.app {
+            transport http
+            header_up Host {host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
         }
     }
 
