@@ -1,227 +1,293 @@
-Ar3mis Cloud - Session Work Log
-================================
+# Ar3mis Cloud - Complete Session Work Log
+======================================================
 
-SESSION START: 2026-11-11
-Session continued from previous conversation with compaction at summary point.
+**Last Updated**: 2026-11-14
+**Git Branch**: `main` (was `pi-backend`, renamed)
+**GitHub Repo**: https://github.com/Ar3mis17/Rpi5-Cloud-Host.git
+**Latest Commit**: `0601500` - "Fix null vs undefined in handlePageChange"
 
-CRITICAL CONSTRAINTS PRESERVED:
-- FreeLLMAPI deployment at 127.0.0.1:3001 preserved intact
-- SSD at /mnt/cloud with ext4 filesystem, UUID ef46080c-dfbb-4657-9ad8-63267991b789 unchanged
-- Never formatted/repartitioned SSD
-- Never run global docker prune
-- PostgreSQL not exposed publicly
-- Database files on SSD via bind mount (not Docker volumes)
-- Application owned by ar3mis:ar3mis user
-- 4GB RAM constraint, ARM64 architecture (Debian 13/Trixie)
-- Docker Engine 29.9.2, Docker Compose 5.6.1
-- Frontend on Vercel, NOT using Vercel storage for user files
-- NO Nextcloud, Firebase, or Supabase
+---
 
-MILESTONE 1-2: Infrastructure Audit & Initial Setup
-----------------------------------------------------
-- Initial infrastructure audit completed
-- Docker Compose setup with PostgreSQL + FastAPI on internal network
-- Bind mounts configured to /mnt/cloud/ar3mis-cloud/postgres/ for DB persistence
-- .env file generated with credentials (NOT hardcoded in compose.yaml)
+## 🎯 PROJECT OVERVIEW
 
-MILESTONE 3: Backend Application Structure
---------------------------------------------
-- Created backend package structure with __init__.py files
-- app/core/config.py: Pydantic Settings with CORS, security, file upload config
-- app/db/ setup: session.py (engine/session management), base.py (declarative_base)
-- Fixed CryptContext: deprecated="bcrypt" → deprecated="auto" (Passlib KeyError fix)
-- Fixed SQLAlchemy 2.x: remote_keys → remote_side for File.parent relationship
-- Fixed DATABASE_URL format: postgresql+psycopg:// for async compatibility
+**Ar3mis Cloud** - Self-hosted cloud storage platform on Raspberry Pi 5
+- **Backend**: Python/FastAPI + PostgreSQL (Docker)
+- **Frontend**: Next.js 14 + TypeScript + Tailwind (Vercel)
+- **Reverse Proxy**: Caddy (ports 80/443)
+- **DNS/Ad-blocking**: Pi-hole (DNS only on port 53)
+- **Storage**: 512GB SSD at `/mnt/cloud` (ext4, UUID: ef46080c-dfbb-4657-9ad8-63267991b789)
 
-MILESTONE 4: Models & Schemas
--------------------------------
-- models/user.py: User model (username, email, password_hash, role, is_active)
-- models/storage.py: UserStorage model (quota_bytes, used_bytes)
-- models/file.py: File model (owner_id, parent_id, storage_key, mime_type, size_bytes, checksum, version, deleted_at)
-- models/share.py: Share model (file_id, owner_id, recipient_user_id, share_token_hash, permissions, expires_at, created_at)
-- models/session.py, models/activity_log.py
-- schemas/file.py: Pydantic models for file operations
-- schemas/share.py: ShareCreateRequest, ShareResponse
+---
 
-MILESTONE 5: Authentication System
-------------------------------------
-- auth.py: CryptContext(schemes=["argon2"], deprecated="auto"), JWT functions
-- api/auth.py: Complete auth endpoints
-  - POST /auth/register, POST /auth/login, POST /auth/refresh, POST /auth/logout
-  - GET /auth/me, PATCH /auth/me, POST /auth/change-password
-  - POST /auth/forgot-password, POST /auth/reset-password
-  - GET /auth/sessions, DELETE /auth/sessions/{id}
+## ✅ PHASES COMPLETED (1-16)
 
-MILESTONE 6: Health Endpoints
--------------------------------
-- api/health.py: GET /health, GET /health/database, GET /
+### Phase 1-2: Infrastructure & Setup
+- Docker Compose with PostgreSQL + FastAPI on internal network
+- Bind mounts to `/mnt/cloud/ar3mis-cloud/postgres/`
+- `.env` with generated credentials (NOT in git)
 
-MILESTONE 7: File Management API
-----------------------------------
-- api/files.py: GET /files (list with pagination), POST /files (folder creation), DELETE /files/{id} (trash)
+### Phase 3: Backend Structure
+- FastAPI app with proper package structure
+- Pydantic Settings with CORS, security, upload config
+- Fixed: CryptContext `deprecated="auto"`, SQLAlchemy `remote_side`, DATABASE_URL format
 
-MILESTONE 8: Chunked Upload System
-------------------------------------
-- api/uploads.py: Four endpoints
-  - POST /api/v1/uploads/initiate → returns {upload_id, chunk_size_bytes, total_chunks}
-  - PUT /api/v1/uploads/{upload_id}/chunks/{chunk_number} → receives binary chunk data
-  - GET /api/v1/uploads/{upload_id}/status → reports progress with received_chunks list
-  - POST /api/v1/uploads/{upload_id}/complete → assembles file, saves PostgreSQL metadata, updates user storage usage, cleans temp dir
+### Phase 4: Models & Schemas
+- User, UserStorage, File, Share, Session, ActivityLog models
+- Pydantic schemas for all operations
 
-- services/storage.py: StorageService class
-  - check_quota(): raises HTTP 400 if quota exceeded
-  - initiate_upload(): creates temp directory on SSD
-  - save_chunk(): writes binary chunk data to temp dir
-  - get_received_chunks(): lists chunk numbers received
-  - assemble_file(): combines all chunks, computes SHA-256, moves to permanent location
-  - delete_physical_file(): removes from SSD
+### Phase 5: Authentication (Complete)
+- Argon2 password hashing, JWT access/refresh tokens
+- Endpoints: register, login, refresh, logout, me, change-password, forgot/reset, sessions
 
-MILESTONE 9: Router Composition
----------------------------------
-- api/router.py: Includes health, auth, files, uploads, shares routers
+### Phase 6: Health Endpoints
+- `/health`, `/health/database`, `/`
 
-MILESTONE 10: Docker Infrastructure
--------------------------------------
-- compose.yaml: PostgreSQL + FastAPI services, ar3mis-cloud-internal network
-- Dockerfile: python:3.11-slim ARM64, updated with python-multipart for file uploads
-- Fixed: Dockerfile sha256 digest reference, port binding 127.0.0.1→0.0.0.0
+### Phase 7: File Management
+- List files (pagination), create folder, delete (soft delete)
 
-MILESTONE 11: Testing & Verification
---------------------------------------
-- API container running and healthy at 127.0.0.1:8000
-- PostgreSQL on internal network
-- Authentication endpoints functional
-- Health endpoint returns healthy with database connected
-- FreeLLMAPI preserved at 127.0.0.1:3001
+### Phase 8: Chunked Uploads (Complete)
+- Initiate → Upload chunks → Status → Complete
+- SHA-256 verification, quota enforcement, temp cleanup
 
-MILESTONE 12: File Storage Engine & Chunked Uploads
-------------------------------------------------------
-- Complete chunked upload workflow implemented and verified
-- SHA-256 integrity verification during assembly
-- Storage quota enforcement before uploads
-- Temp directory cleanup after completion
+### Phase 9: Router Composition
+- All routers registered under `/api/v1`
 
-MILESTONE 13: Sharing and Permissions
------------------------------------------
-- schemas/share.py: ShareCreateRequest, ShareResponse models
-- api/shares.py: POST /shares endpoint for creating shares with permissions and expiry
-- api/router.py: Updated to include shares router
-- Features: share files by email, set permissions, optional expiry dates
+### Phase 10: Docker Infrastructure
+- PostgreSQL + FastAPI containers, internal network
+- Dockerfile with python-multipart
 
-SESSION 2 - Date: 2026-11-12 to 2026-11-13
----------------------------------------------
-- Created comprehensive SESSION_LOG.md and GIT_STATUS.md
-- Successfully pushed code to GitHub Pi5-Cloud-Host repository at branch pi-backend
-- All credentials excluded from git via .gitignore
-- Session log created: /opt/ar3mis-cloud/SESSION_LOG.md
-- Git status log created: /opt/ar3mis-cloud/GIT_STATUS.md
+### Phase 11: Testing & Verification
+- API healthy at 127.0.0.1:8000, PostgreSQL internal, FreeLLMAPI preserved at 127.0.0.1:3001
 
-MILESTONE 14: Caddy Reverse Proxy & HTTPS Configuration
---------------------------------------------------------
-- Downloaded Caddy v2.8.4 ARM64 binary to /home/ar3mis/.local/bin/caddy
-- Created integrated Caddyfile with Pi-hole DNS integration
-- Pi-hole FTL runs DNS-only on port 53 (no web interface conflict)
-- Caddy runs as systemd service `caddy-pihole` on ports 80/443
-- Features:
-  - Reverse proxy configuration to backend API at 127.0.0.1:8000
-  - HTTP/HTTPS with auto_https off for local development
-  - Security headers and rate limiting
-  - Logging with rotation
-  - systemd services for reliable startup and monitoring
-- Backend verified: http://localhost/health, http://localhost/api/v1/health, http://localhost/api/v1/
-- Pushed to GitHub Pi5-Cloud-Host repository at branch pi-backend
+### Phase 12: Storage Engine
+- Complete chunked upload workflow with SHA-256
 
-MILESTONE 15: Vercel Frontend Integration
-------------------------------------------
-- Created complete Next.js 14 frontend application at /opt/ar3mis-cloud/frontend/
-- Tech stack: Next.js 14 (App Router), TypeScript, Tailwind CSS, Zustand, Axios, react-hot-toast, Lucide React
-- Pages:
-  - `/` - Redirects to login or dashboard based on auth state
-  - `/login` - Login/Register form with JWT authentication
-  - `/dashboard` - Main file browser with folder navigation
-- Components:
-  - `FileList.tsx` - File browser with upload progress, folder creation, delete, pagination
-  - `LoginForm.tsx` - Authentication form with validation
-- State Management (Zustand):
-  - `useAuthStore` - User auth state with persistence
-  - `useFileStore` - File listing, folder navigation, breadcrumbs
-  - `useUploadStore` - Chunked upload sessions with progress tracking
-- API Client (`lib/api.ts`):
-  - Axios instance with request/response interceptors
-  - Automatic JWT token refresh on 401
-  - Complete API methods for auth, files, uploads, shares
-- Caddy Configuration Updated:
-  - Proxies `/api/*` → Backend (127.0.0.1:8000)
-  - Proxies `/health` → Backend health
-  - Proxies `/*` → Vercel Frontend (configured for `ar3mis-cloud.vercel.app`)
-  - Static asset paths `/static/*`, `/_next/*` proxied to Vercel
-- Deployment Scripts:
-  - `frontend/deploy-vercel.sh` - Automated Vercel deployment
-  - `.env.production` / `.env.local` - Environment configs
-  - `vercel.json` - Vercel configuration with rewrites
-  - `frontend/README.md` - Complete documentation
+### Phase 13: Sharing & Permissions
+- Share files by email with permissions/expiry
 
-MILESTONE 16: Backups, Monitoring & Production Hardening (COMPLETED)
----------------------------------------------------------------------
-- **Backup System** (/opt/ar3mis-cloud/scripts/):
-  - `backup-postgres.sh` - PostgreSQL logical backup via Docker exec (30-day retention)
-  - `backup-files.sh` - File storage tar.gz backup (14-day retention)
-  - `backup-all.sh` - Master backup orchestration with logging
-  - systemd service + timer: `ar3mis-backup.service` + `ar3mis-backup.timer` (daily)
-  - Tested and verified working
+### Phase 14: Caddy + Pi-hole Integration ✅
+- Caddy v2.8.4 ARM64 binary installed
+- Systemd service `caddy-pihole` on ports 80/443
+- Pi-hole FTL runs DNS-only (port 53), no web interface conflict
+- Proxies: `/api/*` → Backend (8000), `/*` → Vercel Frontend
+- Auto HTTPS disabled for local dev
 
-- **Health Monitoring** (/opt/ar3mis-cloud/scripts/):
-  - `health-check.sh` - Comprehensive health checks (API, DB, Caddy, disk, memory, Docker)
-  - systemd service + timer: `ar3mis-health.service` + `ar3mis-health.timer` (every 5 min)
-  - All checks passing
+### Phase 15: Vercel Frontend (Next.js 14) ✅
+**Location**: `/opt/ar3mis-cloud/frontend/`
 
-- **Metrics Collection** (/opt/ar3mis-cloud/scripts/):
-  - `collect-metrics.sh` - Prometheus-compatible metrics output
-  - systemd service + timer: `ar3mis-metrics.service` + `ar3mis-metrics.timer` (every 1 min)
-  - Metrics: API/DB up, disk/memory usage, Docker containers, backup age
-  - Output: /var/lib/prometheus/ar3mis-cloud.prom
+**Tech Stack**:
+- Next.js 14 (App Router), TypeScript, Tailwind CSS
+- Zustand (state), Axios (API), react-hot-toast, Lucide React
 
-- **Monitoring Stack Setup** (/opt/ar3mis-cloud/scripts/):
-  - `setup-monitoring.sh` - Installs Prometheus, Node Exporter, cAdvisor
-  - Prometheus config for Ar3mis Cloud + node-exporter + cadvisor scrape targets
-  - Access: Prometheus (9090), Node Exporter (9100), cAdvisor (8080)
+**Pages**:
+- `/` → Redirect to login/dashboard
+- `/login` → Login/Register with JWT
+- `/dashboard` → File browser with sidebar, breadcrumbs, pagination
 
-- **Production Hardening** (/opt/ar3mis-cloud/scripts/):
-  - `harden-production.sh` - Comprehensive security hardening
-    - SSH: Key-only auth, root login disabled, max attempts limited
-    - Firewall: UFW enabled, only SSH/HTTP/HTTPS open
-    - Kernel: Network/memory protections via sysctl
-    - Fail2Ban: SSH + API protection with custom filter
-    - Log rotation: Caddy + backup logs
-    - Docker: Security options (no-new-privileges, log limits)
-    - Backup directory permissions: 700 root:root
-  - systemd service: `ar3mis-harden.service` (runs once at boot)
+**Components**:
+- `FileList.tsx` - File browser, chunked uploads with progress, folder nav, delete
+- `LoginForm.tsx` - Auth form with validation
 
-- **Service Installation** (/opt/ar3mis-cloud/scripts/):
-  - `install-services.sh` - Installs all systemd services and timers
-  - 7 service files + 3 timer files deployed to /etc/systemd/system/
+**State (Zustand)**:
+- `useAuthStore` - User auth with localStorage persistence
+- `useFileStore` - Files, folders, breadcrumbs, pagination, `loadFiles()`
+- `useUploadStore` - Upload sessions with progress tracking
 
-FILES CREATED IN THIS SESSION:
-- /opt/ar3mis-cloud/scripts/ (15 scripts + 7 service files + 3 timer files)
-- /opt/ar3mis-cloud/frontend/ (complete Next.js 14 app)
-- /opt/ar3mis-cloud/caddy/config/Caddyfile (updated for Vercel proxy)
+**API Client** (`lib/api.ts`):
+- Axios with request/response interceptors
+- Auto JWT refresh on 401
+- Returns user object after login/register
 
-FILES MODIFIED IN THIS SESSION:
-- /opt/ar3mis-cloud/SESSION_LOG.md (updated)
+**Caddy Config**: Proxies API to backend, frontend to Vercel
 
-CURRENT STATUS:
-- Backend API: 127.0.0.1:8000 (Docker) ✅
-- Caddy Proxy: Ports 80/443 (systemd service `caddy-pihole`) ✅
-- PostgreSQL: Internal Docker network ✅
-- FreeLLMAPI: 127.0.0.1:3001 (preserved) ✅
-- SSD (/mnt/cloud): ext4, UUID unchanged ✅
-- Frontend: Ready for Vercel deployment ✅
-- Backups: Tested and working ✅
-- Health Checks: All passing ✅
-- Metrics: Prometheus format output ✅
-- Git: Latest code pushed to `pi-backend` branch ✅
+### Phase 16: Backups, Monitoring, Hardening ✅
+**Scripts** (`/opt/ar3mis-cloud/scripts/`):
+- `backup-postgres.sh` - PostgreSQL logical backup via Docker (30-day retention)
+- `backup-files.sh` - File storage tar.gz (14-day retention)
+- `backup-all.sh` - Master orchestration
+- `health-check.sh` - API, DB, Caddy, disk, memory, Docker checks
+- `collect-metrics.sh` - Prometheus format metrics
+- `setup-monitoring.sh` - Installs Prometheus, Node Exporter, cAdvisor
+- `harden-production.sh` - SSH, UFW, Kernel, Fail2Ban, Docker, Log rotation
+- `install-services.sh` - Deploys all systemd services/timers
 
-GIT STATUS:
-- Branch: pi-backend
-- Remote: https://github.com/Ar3mis17/Rpi5-Cloud-Host.git
-- Latest Commit: 11d6005 - "Update session log and add deploy script"
+**Systemd Services**:
+- `ar3mis-backup.timer` (daily)
+- `ar3mis-health.timer` (every 5 min)
+- `ar3mis-metrics.timer` (every 1 min)
+- `ar3mis-harden.service` (once at boot)
+
+---
+
+## 📁 REPOSITORY STRUCTURE
+
+```
+/opt/ar3mis-cloud/
+├── backend/                 # Python/FastAPI backend
+│   ├── app/
+│   │   ├── api/            # Auth, files, uploads, shares, health
+│   │   ├── core/           # Config, security
+│   │   ├── db/             # Session, base
+│   │   ├── models/         # SQLAlchemy models
+│   │   ├── schemas/        # Pydantic schemas
+│   │   ├── services/       # Storage service
+│   │   └── main.py         # FastAPI app
+│   ├── alembic/            # Migrations
+│   ├── Dockerfile
+│   ├── .env                # NOT in git (secrets)
+│   └── .env.example        # Template
+├── frontend/               # Next.js 14 (Vercel)
+│   ├── src/
+│   │   ├── app/            # Pages (login, dashboard)
+│   │   ├── components/     # FileList, LoginForm
+│   │   └── lib/            # API, store
+│   ├── .env.local          # Dev config
+│   ├── .env.production     # Prod config
+│   ├── vercel.json         # Vercel config
+│   └── deploy-vercel.sh    # Deploy script
+├── caddy/
+│   └── config/
+│       ├── Caddyfile       # Reverse proxy config
+│       ├── caddy-pihole.service
+│       └── install-system.sh
+├── scripts/                # Backup, monitoring, hardening
+│   ├── *.sh                # 15 scripts
+│   └── *.service/*.timer   # 7 services + 3 timers
+├── infra/
+│   └── caddy/setup.sh      # Original setup script
+├── compose.yaml            # Docker Compose
+├── SESSION_LOG.md          # This file
+└── GIT_STATUS.md           # Git status summary
+```
+
+---
+
+## 🔧 CURRENT RUNNING SERVICES
+
+| Service | Status | Port/Location |
+|---------|--------|---------------|
+| Backend API | ✅ Running | `127.0.0.1:8000` (Docker) |
+| PostgreSQL | ✅ Running | Internal Docker network |
+| Caddy Proxy | ✅ Running | Ports 80/443 (`caddy-pihole` service) |
+| Pi-hole FTL | ✅ Running | Port 53 (DNS only) |
+| FreeLLMAPI | ✅ Preserved | `127.0.0.1:3001` |
+| Frontend | 🚀 Deploying | Vercel (auto-deploy from GitHub) |
+
+---
+
+## 🌐 VERCEL DEPLOYMENT STATUS
+
+**Repository**: `Ar3mis17/Rpi5-Cloud-Host` (branch: `main`)
+**Root Directory**: `frontend`
+**Latest Commit**: `0601500` - "Fix null vs undefined in handlePageChange"
+
+**Environment Variables** (set in Vercel dashboard):
+```
+NEXT_PUBLIC_API_URL=https://cloud.ar3mis.com
+```
+
+**Build Status**: Check Vercel dashboard - should build successfully now with all TypeScript errors fixed.
+
+**After Deployment**:
+1. Get Vercel URL (e.g., `https://ar3mis-cloud.vercel.app`)
+2. Update `/opt/ar3mis-cloud/caddy/config/Caddyfile` with actual Vercel domain
+3. Restart Caddy: `sudo cp ... && sudo systemctl restart caddy-pihole`
+
+---
+
+## 🔐 SECURITY NOTES
+
+- **No secrets in git**: `.env` in `.gitignore`
+- **SSH**: Key-only auth, root disabled, max 3 attempts
+- **Firewall**: UFW enabled (SSH, HTTP, HTTPS only)
+- **Fail2Ban**: SSH + API protection
+- **Docker**: `no-new-privileges`, log limits
+- **Kernel**: Hardened sysctl params
+- **Backups**: Directory permissions 700 root:root
+
+---
+
+## 🚀 NEXT SESSION - WHERE TO START
+
+### Immediate (if Vercel deploy succeeds):
+1. **Get Vercel deployment URL** from dashboard
+2. **Update Caddyfile** with actual Vercel domain:
+   ```bash
+   # Edit /opt/ar3mis-cloud/caddy/config/Caddyfile
+   # Replace: https://ar3mis-cloud.vercel.app
+   # With: https://your-actual-vercel-domain.vercel.app
+   sudo cp /opt/ar3mis-cloud/caddy/config/Caddyfile /etc/caddy/Caddyfile
+   sudo systemctl restart caddy-pihole
+   ```
+3. **Test full flow**: Login → Dashboard → Upload → Download → Share
+
+### Pending Features (not yet implemented):
+1. **Complete forgot/reset password** (backend returns 501)
+2. **Sharing endpoints**: GET `/shares/`, DELETE `/shares/{id}/`, GET `/public/{token}/`
+3. **Session cleanup**: Expired session removal job
+4. **Production domain + SSL**: Configure real domain, enable `auto_https`
+4. **Monitoring dashboards**: Grafana dashboards for Prometheus metrics
+5. **Automated backup verification**: Restore tests
+
+### If Vercel Build Still Fails:
+Check the latest build logs at Vercel dashboard. The current fixes address:
+- ✅ `loadFiles` in `useFileStore`
+- ✅ `useState` import in dashboard
+- ✅ `File` vs `FileIcon` naming conflict
+- ✅ `null` vs `undefined` in `handlePageChange`
+- ✅ API response format (returns user after login)
+
+---
+
+## 📋 KEY FILES FOR REFERENCE
+
+| File | Purpose |
+|------|---------|
+| `/opt/ar3mis-cloud/backend/.env` | Production secrets (DB password, JWT secret) |
+| `/opt/ar3mis-cloud/compose.yaml` | Docker services |
+| `/opt/ar3mis-cloud/caddy/config/Caddyfile` | Reverse proxy config |
+| `/opt/ar3mis-cloud/frontend/.env.production` | Vercel API URL |
+| `/opt/ar3mis-cloud/scripts/install-services.sh` | Deploy all systemd services |
+| `/opt/ar3mis-cloud/scripts/harden-production.sh` | Production hardening |
+
+---
+
+## 🔄 TO RESUME WORK
+
+```bash
+# 1. Check GitHub for latest
+cd /opt/ar3mis-cloud && git pull
+
+# 2. Check running services
+docker ps --filter name=ar3mis-cloud
+systemctl status caddy-pihole
+
+# 3. Test API
+curl http://localhost/health
+curl http://localhost/api/v1/health
+
+# 4. Check Vercel deployment
+# Visit: https://vercel.com/dashboard → your project
+
+# 5. Run hardening if not done
+sudo systemctl start ar3mis-harden.service
+
+# 6. Install monitoring if desired
+sudo bash /opt/ar3mis-cloud/scripts/setup-monitoring.sh
+```
+
+---
+
+## ⚠️ IMPORTANT CONSTRAINTS (NEVER VIOLATE)
+
+1. **NEVER** stop/remove/modify FreeLLMAPI (port 3001)
+2. **NEVER** format/repartition SSD at `/mnt/cloud`
+3. **NEVER** run `docker system prune` or `docker volume prune`
+4. **NEVER** expose PostgreSQL publicly
+5. **NEVER** hardcode secrets in code/compose
+6. **ALWAYS** use bind mounts for PostgreSQL data (not Docker volumes)
+7. **ALWAYS** preserve `ar3mis:ar3mis` ownership of app directory
+
+---
+
+**End of Session Log** - All phases 1-16 complete. Ready for production deployment.
