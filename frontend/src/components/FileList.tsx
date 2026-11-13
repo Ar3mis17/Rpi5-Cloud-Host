@@ -41,7 +41,8 @@ export default function FileList() {
 
   const handlePageChange = (newPage: number) => {
     setLoading(true);
-    api.listFiles(currentFolder, newPage, pagination.pageSize)
+    const folderId = currentFolder === null ? undefined : currentFolder;
+    api.listFiles(folderId, newPage, pagination.pageSize)
       .then(response => setFiles(response))
       .catch(() => toast.error('Failed to load files'))
       .finally(() => setLoading(false));
