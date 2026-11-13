@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useFileStore, useUploadStore } from '@/lib/store';
 import { api } from '@/lib/api';
-import { Folder, File, Upload, Download, Trash2, Share2, MoreVertical, ChevronRight, Loader2 } from 'lucide-react';
+import { Folder, File as FileIcon, Upload, Download, Trash2, Share2, MoreVertical, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface FileItem {
@@ -32,23 +32,19 @@ export default function FileList() {
 
   const getFileIcon = (mimeType: string, isFolder: boolean) => {
     if (isFolder) return <Folder className="w-6 h-6 text-yellow-500" />;
-    if (mimeType.startsWith('image/')) return <File className="w-6 h-6 text-green-500" />;
-    if (mimeType.startsWith('video/')) return <File className="w-6 h-6 text-red-500" />;
-    if (mimeType.startsWith('audio/')) return <File className="w-6 h-6 text-orange-500" />;
-    if (mimeType === 'application/pdf') return <File className="w-6 h-6 text-red-600" />;
-    return <File className="w-6 h-6 text-gray-500" />;
+    if (mimeType.startsWith('image/')) return <FileIcon className="w-6 h-6 text-green-500" />;
+    if (mimeType.startsWith('video/')) return <FileIcon className="w-6 h-6 text-red-500" />;
+    if (mimeType.startsWith('audio/')) return <FileIcon className="w-6 h-6 text-orange-500" />;
+    if (mimeType === 'application/pdf') return <FileIcon className="w-6 h-6 text-red-600" />;
+    return <FileIcon className="w-6 h-6 text-gray-500" />;
   };
 
-  const loadFiles = async () => {
+  const handlePageChange = (newPage: number) => {
     setLoading(true);
-    try {
-      const response = await api.listFiles(currentFolder, pagination.page, pagination.pageSize);
-      setFiles(response);
-    } catch (error) {
-      toast.error('Failed to load files');
-    } finally {
-      setLoading(false);
-    }
+    api.listFiles(currentFolder, newPage, pagination.pageSize)
+      .then(response => setFiles(response))
+      .catch(() => toast.error('Failed to load files'))
+      .finally(() => setLoading(false));
   };
 
   const handleCreateFolder = async () => {
@@ -128,7 +124,7 @@ export default function FileList() {
   const handleNavigate = (file: FileItem) => {
     if (file.is_folder) {
       setCurrentFolder(file.id, file.name);
-      loadFiles();
+      handlePageChange(1);
     }
   };
 
@@ -136,7 +132,7 @@ export default function FileList() {
     const crumb = breadcrumbs[index];
     if (crumb.id === currentFolder) return;
     setCurrentFolder(crumb.id, crumb.name);
-    loadFiles();
+    handlePageChange(1);
   };
 
   return (
@@ -281,22 +277,14 @@ export default function FileList() {
             </span>
             <div className="flex gap-2">
               <button
-                onClick={() => {
-                  if (pagination.page > 1) {
-                    // Reload with new page
-                  }
-                }}
+                onClick={() => handlePageChange(pagination.page - 1)}
                 disabled={pagination.page === 1}
                 className="px-3 py-1 text-sm border rounded disabled:opacity-50"
               >
                 Previous
               </button>
               <button
-                onClick={() => {
-                  if (pagination.page < pagination.totalPages) {
-                    // Reload with new page
-                  }
-                }}
+                onClick={() => handlePageChange(pagination.page + 1)}
                 disabled={pagination.page === pagination.totalPages}
                 className="px-3 py-1 text-sm border rounded disabled:opacity-50"
               >

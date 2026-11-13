@@ -90,13 +90,17 @@ class ApiClient {
   async register(username: string, email: string, password: string) {
     const response = await this.client.post('/auth/register', { username, email, password });
     this.setTokens(response.data.access_token, response.data.refresh_token);
-    return response.data;
+    // Fetch user after registration
+    const userResponse = await this.getCurrentUser();
+    return { ...response.data, user: userResponse };
   }
 
   async login(username: string, password: string) {
     const response = await this.client.post('/auth/login', { username, password });
     this.setTokens(response.data.access_token, response.data.refresh_token);
-    return response.data;
+    // Fetch user after login
+    const userResponse = await this.getCurrentUser();
+    return { ...response.data, user: userResponse };
   }
 
   async logout() {
