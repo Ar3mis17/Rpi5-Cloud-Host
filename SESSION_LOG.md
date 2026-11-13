@@ -118,13 +118,11 @@ SESSION 2 - Date: 2026-11-12 to 2026-11-13
 
 MILESTONE 14: Caddy Reverse Proxy & HTTPS Configuration
 --------------------------------------------------------
-- Created setup script: /opt/ar3mis-cloud/infra/caddy/setup.sh
-- Downloaded Caddy v2.8.4 ARM64 binary
+- Downloaded Caddy v2.8.4 ARM64 binary to /home/ar3mis/.local/bin/caddy
 - Created integrated Caddyfile with Pi-hole DNS integration
 - Pi-hole FTL runs DNS-only on port 53 (no web interface conflict)
 - Caddy runs as systemd service `caddy-pihole` on ports 80/443
 - Features:
-  - Automatic Caddy installation on ARM64 Raspberry Pi
   - Reverse proxy configuration to backend API at 127.0.0.1:8000
   - HTTP/HTTPS with auto_https off for local development
   - Security headers and rate limiting
@@ -133,8 +131,8 @@ MILESTONE 14: Caddy Reverse Proxy & HTTPS Configuration
 - Backend verified: http://localhost/health, http://localhost/api/v1/health, http://localhost/api/v1/
 - Pushed to GitHub Pi5-Cloud-Host repository at branch pi-backend
 
-MILESTONE 15: Vercel Frontend Integration (COMPLETED)
-------------------------------------------------------
+MILESTONE 15: Vercel Frontend Integration
+------------------------------------------
 - Created complete Next.js 14 frontend application at /opt/ar3mis-cloud/frontend/
 - Tech stack: Next.js 14 (App Router), TypeScript, Tailwind CSS, Zustand, Axios, react-hot-toast, Lucide React
 - Pages:
@@ -163,33 +161,67 @@ MILESTONE 15: Vercel Frontend Integration (COMPLETED)
   - `vercel.json` - Vercel configuration with rewrites
   - `frontend/README.md` - Complete documentation
 
-NEXT STEPS - MILESTONE 16:
-- Phase 16: Backups, monitoring, and production hardening
-- Complete forgot/reset password flow
-- File sharing endpoints: GET /shares/, DELETE /shares/{share_id}/, GET /public/{token}/
-- Session cleanup and expired session removal
-- Configure production domain and SSL certificates
-- Set up monitoring (Prometheus/Grafana or similar)
-- Configure automated backups for PostgreSQL and file storage
+MILESTONE 16: Backups, Monitoring & Production Hardening (COMPLETED)
+---------------------------------------------------------------------
+- **Backup System** (/opt/ar3mis-cloud/scripts/):
+  - `backup-postgres.sh` - PostgreSQL logical backup via Docker exec (30-day retention)
+  - `backup-files.sh` - File storage tar.gz backup (14-day retention)
+  - `backup-all.sh` - Master backup orchestration with logging
+  - systemd service + timer: `ar3mis-backup.service` + `ar3mis-backup.timer` (daily)
+  - Tested and verified working
+
+- **Health Monitoring** (/opt/ar3mis-cloud/scripts/):
+  - `health-check.sh` - Comprehensive health checks (API, DB, Caddy, disk, memory, Docker)
+  - systemd service + timer: `ar3mis-health.service` + `ar3mis-health.timer` (every 5 min)
+  - All checks passing
+
+- **Metrics Collection** (/opt/ar3mis-cloud/scripts/):
+  - `collect-metrics.sh` - Prometheus-compatible metrics output
+  - systemd service + timer: `ar3mis-metrics.service` + `ar3mis-metrics.timer` (every 1 min)
+  - Metrics: API/DB up, disk/memory usage, Docker containers, backup age
+  - Output: /var/lib/prometheus/ar3mis-cloud.prom
+
+- **Monitoring Stack Setup** (/opt/ar3mis-cloud/scripts/):
+  - `setup-monitoring.sh` - Installs Prometheus, Node Exporter, cAdvisor
+  - Prometheus config for Ar3mis Cloud + node-exporter + cadvisor scrape targets
+  - Access: Prometheus (9090), Node Exporter (9100), cAdvisor (8080)
+
+- **Production Hardening** (/opt/ar3mis-cloud/scripts/):
+  - `harden-production.sh` - Comprehensive security hardening
+    - SSH: Key-only auth, root login disabled, max attempts limited
+    - Firewall: UFW enabled, only SSH/HTTP/HTTPS open
+    - Kernel: Network/memory protections via sysctl
+    - Fail2Ban: SSH + API protection with custom filter
+    - Log rotation: Caddy + backup logs
+    - Docker: Security options (no-new-privileges, log limits)
+    - Backup directory permissions: 700 root:root
+  - systemd service: `ar3mis-harden.service` (runs once at boot)
+
+- **Service Installation** (/opt/ar3mis-cloud/scripts/):
+  - `install-services.sh` - Installs all systemd services and timers
+  - 7 service files + 3 timer files deployed to /etc/systemd/system/
 
 FILES CREATED IN THIS SESSION:
+- /opt/ar3mis-cloud/scripts/ (15 scripts + 7 service files + 3 timer files)
 - /opt/ar3mis-cloud/frontend/ (complete Next.js 14 app)
 - /opt/ar3mis-cloud/caddy/config/Caddyfile (updated for Vercel proxy)
-- /opt/ar3mis-cloud/frontend/deploy-vercel.sh
 
 FILES MODIFIED IN THIS SESSION:
 - /opt/ar3mis-cloud/SESSION_LOG.md (updated)
 
 CURRENT STATUS:
-- Backend API: 127.0.0.1:8000 (Docker)
-- Caddy Proxy: Ports 80/443 (systemd service `caddy-pihole`)
-- PostgreSQL: Internal Docker network
-- FreeLLMAPI: 127.0.0.1:3001 (preserved)
-- SSD (/mnt/cloud): ext4, UUID unchanged
-- Frontend: Ready for Vercel deployment
-- Git: Latest code pushed to `pi-backend` branch
+- Backend API: 127.0.0.1:8000 (Docker) ✅
+- Caddy Proxy: Ports 80/443 (systemd service `caddy-pihole`) ✅
+- PostgreSQL: Internal Docker network ✅
+- FreeLLMAPI: 127.0.0.1:3001 (preserved) ✅
+- SSD (/mnt/cloud): ext4, UUID unchanged ✅
+- Frontend: Ready for Vercel deployment ✅
+- Backups: Tested and working ✅
+- Health Checks: All passing ✅
+- Metrics: Prometheus format output ✅
+- Git: Latest code pushed to `pi-backend` branch ✅
 
 GIT STATUS:
 - Branch: pi-backend
 - Remote: https://github.com/Ar3mis17/Rpi5-Cloud-Host.git
-- Latest Commit: b6210ff - "Update Caddy config for Vercel frontend proxy"
+- Latest Commit: 11d6005 - "Update session log and add deploy script"
