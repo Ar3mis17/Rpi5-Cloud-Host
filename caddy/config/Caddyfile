@@ -1,0 +1,23 @@
+cloud.ar3mis.com {
+    @pihole path /admin /pihole /login
+    @api path /api
+    @health path /health
+
+    handle @pihole {
+        reverse_proxy http://127.0.0.1:8080 {
+            transport http
+        }
+    }
+
+    handle @api {
+        reverse_proxy http://127.0.0.1:8000 {
+            transport http
+        }
+    }
+
+    handle @health {
+        reverse_proxy http://127.0.0.1:8000/health {
+            transport http
+        }
+    }
+}

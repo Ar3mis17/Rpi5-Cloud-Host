@@ -1,0 +1,23 @@
+[Unit]
+Description=Caddy with Pi-hole Integration
+Documentation=https://caddyserver.com/docs/
+After=network-online.target
+Requires=pihole-FTL.service
+
+[Service]
+Type=notify
+User=root
+Group=www-data
+ExecStart=/usr/bin/caddy run --config /etc/caddy/Caddyfile
+ExecReload=/usr/bin/caddy reload --config /etc/caddy/Caddyfile
+Restart=on-failure
+LimitNOFILE=1048576
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/etc/caddy /var/caddy /var/log/caddy /var/www/html
+
+[Install]
+WantedBy=multi-user.target
