@@ -36,7 +36,7 @@ interface FileListResponse {
 
 interface UploadSession {
   uploadId: string;
-  file: File;
+  file: globalThis.File;
   chunks: Blob[];
   totalChunks: number;
   uploadedChunks: number;
@@ -138,7 +138,7 @@ export const useFileStore = create<FileState>((set, get) => ({
     set({ isLoading: true });
     try {
       const { api } = await import('@/lib/api');
-      const response = await api.listFiles(get().currentFolder, page, pageSize);
+      const response = await api.listFiles(get().currentFolder ?? undefined, page, pageSize);
       get().setFiles(response);
     } catch (error) {
       set({ isLoading: false });

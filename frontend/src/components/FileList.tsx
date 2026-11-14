@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useFileStore, useUploadStore } from '@/lib/store';
 import { api } from '@/lib/api';
 import { Folder, File as FileIcon, Upload, Download, Trash2, Share2, MoreVertical, ChevronRight } from 'lucide-react';
@@ -52,7 +52,7 @@ export default function FileList() {
     const name = prompt('Enter folder name:');
     if (!name) return;
     try {
-      const folder = await api.createFolder(name, currentFolder);
+      const folder = await api.createFolder(name, currentFolder ?? undefined);
       addFile(folder);
       toast.success('Folder created');
     } catch (error) {
@@ -67,13 +67,13 @@ export default function FileList() {
     setUploading(true);
     try {
       // Initiate upload
-      const uploadData = await api.initiateUpload(file.name, file.size, file.type, currentFolder);
+      const uploadData = await api.initiateUpload(file.name, file.size, file.type, currentFolder ?? undefined);
       const { upload_id, chunk_size_bytes, total_chunks } = uploadData;
 
       const session = {
         uploadId: upload_id,
         file: file,
-        chunks: [],
+        chunks: [] as Blob[],
         totalChunks: total_chunks,
         uploadedChunks: 0,
         status: 'uploading' as const,
