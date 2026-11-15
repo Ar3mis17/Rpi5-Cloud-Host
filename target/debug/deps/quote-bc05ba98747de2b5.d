@@ -1,0 +1,11 @@
+C:\Users\TANISHQ\AppData\Local\Temp\ar3mis-cloud-rust\target\debug\deps\quote-bc05ba98747de2b5.d: C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.47\src\lib.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.47\src\ext.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.47\src\format.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.47\src\ident_fragment.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.47\src\to_tokens.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.47\src\runtime.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.47\src\spanned.rs
+
+C:\Users\TANISHQ\AppData\Local\Temp\ar3mis-cloud-rust\target\debug\deps\libquote-bc05ba98747de2b5.rmeta: C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.47\src\lib.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.47\src\ext.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.47\src\format.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.47\src\ident_fragment.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.47\src\to_tokens.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.47\src\runtime.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.47\src\spanned.rs
+
+C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.47\src\lib.rs:
+C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.47\src\ext.rs:
+C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.47\src\format.rs:
+C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.47\src\ident_fragment.rs:
+C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.47\src\to_tokens.rs:
+C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.47\src\runtime.rs:
+C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.47\src\spanned.rs:

@@ -1,0 +1,62 @@
+[workspace]
+resolver = "2"
+members = [
+    "backend",
+    "frontend",
+    "shared",
+]
+exclude = ["frontend/pkg"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[workspace.dependencies]
+# Backend
+axum = "0.7"
+axum-extra = "0.9"
+tokio = { version = "1.40", features = ["full"] }
+sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "postgres", "chrono", "json", "macros", "migrate"] }
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors", "trace", "fs"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt", "json"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_with = "3.8"
+uuid = { version = "1.8", features = ["v4", "serde"], default-features = false }
+chrono = { version = "0.4", features = ["serde"] }
+jsonwebtoken = "9.3"
+argon2 = "0.5"
+async-trait = "0.1"
+validator = { version = "0.16", features = ["derive"] }
+mime = "0.3"
+mime_guess = "2.0"
+sha2 = "0.10"
+rand = "0.9"
+secrecy = "0.10"
+zeroize = "1.8"
+email_address = "0.2"
+url = "2.5"
+dotenvy = "0.15"
+clap = { version = "4.5", features = ["derive", "env"] }
+anyhow = "1.0"
+thiserror = "1.0"
+envy = "0.4"
+
+# Shared
+shared = { path = "shared" }
+
+# Frontend (Leptos)
+leptos = { version = "0.7", features = ["csr"] }
+leptos_router = { version = "0.7", features = ["ssr"] }
+leptos_meta = { version = "0.7", features = ["ssr"] }
+leptos-use = { version = "0.7", features = ["storage"] }
+gloo = { version = "0.10", features = ["console", "net", "storage", "timers", "events"] }
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+web-sys = { version = "0.3", features = [] }
+js-sys = "0.3"
+console_error_panic_hook = "0.1"
+wasm-logger = "0.2"

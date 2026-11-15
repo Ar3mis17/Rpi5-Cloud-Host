@@ -1,0 +1,9 @@
+C:\Users\TANISHQ\AppData\Local\Temp\ar3mis-cloud-rust\target\debug\deps\leptos_hot_reload-06198562c4aaed2f.d: C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\leptos_hot_reload-0.7.8\src\lib.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\leptos_hot_reload-0.7.8\src\diff.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\leptos_hot_reload-0.7.8\src\node.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\leptos_hot_reload-0.7.8\src\parsing.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\leptos_hot_reload-0.7.8\src\patch.js
+
+C:\Users\TANISHQ\AppData\Local\Temp\ar3mis-cloud-rust\target\debug\deps\libleptos_hot_reload-06198562c4aaed2f.rmeta: C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\leptos_hot_reload-0.7.8\src\lib.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\leptos_hot_reload-0.7.8\src\diff.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\leptos_hot_reload-0.7.8\src\node.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\leptos_hot_reload-0.7.8\src\parsing.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\leptos_hot_reload-0.7.8\src\patch.js
+
+C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\leptos_hot_reload-0.7.8\src\lib.rs:
+C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\leptos_hot_reload-0.7.8\src\diff.rs:
+C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\leptos_hot_reload-0.7.8\src\node.rs:
+C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\leptos_hot_reload-0.7.8\src\parsing.rs:
+C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\leptos_hot_reload-0.7.8\src\patch.js:
