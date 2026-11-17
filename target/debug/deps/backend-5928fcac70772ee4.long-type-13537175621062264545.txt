@@ -1,0 +1,1 @@
+Router<Pool<Postgres>>: From<Router<(Pool<Postgres>, Arc<tokio::sync::Mutex<HashMap<Uuid, UploadSession>>>)>>

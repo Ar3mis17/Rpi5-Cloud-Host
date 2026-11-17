@@ -1,4 +1,4 @@
-//! Login/Register page component
+﻿//! Login/Register page component
 
 use leptos::prelude::*;
 use leptos::ev;
@@ -38,7 +38,7 @@ pub fn Login() -> impl IntoView {
 
             match result {
                 Ok(auth) => {
-                    auth_store.login(auth.access_token, auth.refresh_token, auth.user);
+                    auth_store.login(auth.tokens.access_token, auth.tokens.refresh_token, auth.user);
                     navigate("/dashboard", Default::default());
                 }
                 Err(e) => set_error.set(Some(e)),
@@ -145,3 +145,4 @@ pub fn Login() -> impl IntoView {
         </div>
     }
 }
+

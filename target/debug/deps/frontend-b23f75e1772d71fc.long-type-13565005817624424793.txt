@@ -1,0 +1,2 @@
+leptos::html::HtmlElement<Button, (Class<&str>,), ((leptos::html::HtmlElement<Svg, (Class<&str>, CustomAttr<&str, &str>, CustomAttr<&str, &str>, CustomAttr<&str, &str>), (leptos::html::HtmlElement<leptos::svg::Path, (CustomAttr<&str, &str>, CustomAttr<&str, &str>, CustomAttr<&str, &str>, CustomAttr<&str, &str>), ()>,)>, &str),)>
+leptos::prelude::OnAttribute<click, {closure@frontend\src\components\dashboard.rs:37:29: 37:37}>

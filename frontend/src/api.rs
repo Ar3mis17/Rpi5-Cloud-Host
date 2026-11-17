@@ -2,14 +2,13 @@
 
 use gloo::net::http::Request;
 use gloo::storage::{LocalStorage, Storage};
+use serde::Serialize;
 use shared::{
     UserResponse, FileEntry, PaginatedResponse, AuthResponse,
-    RegisterRequest, LoginRequest, CreateFolderRequest, UpdateFileRequest,
-    UploadInitiateRequest, UploadInitiateResponse, UploadStatusResponse, StorageQuota
+    RegisterRequest, LoginRequest, CreateFolderRequest, UploadInitiateRequest,
+    UploadInitiateResponse, UploadStatusResponse, StorageQuota
 };
 use uuid::Uuid;
-use wasm_bindgen::JsCast;
-use wasm_bindgen_futures::JsFuture;
 
 fn get_token() -> Option<String> {
     LocalStorage::get("auth_token").ok()
@@ -28,10 +27,10 @@ pub fn clear_token() {
     let _ = LocalStorage::delete("refresh_token");
 }
 
-async fn request_json<T: serde::de::DeserializeOwned, B: serde::Serialize + ?Sized>(
+async fn request_json<T: serde::de::DeserializeOwned, B: serde::Serialize>(
     method: &str,
     url: &str,
-    body: Option<&B>,
+    body: Option<B>,
 ) -> Result<T, String> {
     let mut builder = match method {
         "GET" => Request::get(url),
@@ -49,7 +48,7 @@ async fn request_json<T: serde::de::DeserializeOwned, B: serde::Serialize + ?Siz
     }
 
     let response = if let Some(b) = body {
-        builder.json(b).map_err(|e| e.to_string())?
+        builder.json(&b).map_err(|e| e.to_string())?
             .send().await
     } else {
         builder.send().await
@@ -65,38 +64,33 @@ async fn request_json<T: serde::de::DeserializeOwned, B: serde::Serialize + ?Siz
 
 pub async fn register(username: String, email: String, password: String) -> Result<AuthResponse, String> {
     let req = RegisterRequest { username, email, password };
-    let res: AuthResponse = request_json("POST", "/api/v1/auth/register", Some(&req)).await?;
-    set_token(&res.tokens.access_token);
-    set_refresh_token(&res.tokens.refresh_token);
-    Ok(res)
+    request_json("POST", "/api/v1/auth/register", Some(req)).await
 }
 
 pub async fn login(email: String, password: String) -> Result<AuthResponse, String> {
     let req = LoginRequest { email, password, remember_me: Some(true) };
-    let res: AuthResponse = request_json("POST", "/api/v1/auth/login", Some(&req)).await?;
-    set_token(&res.tokens.access_token);
-    set_refresh_token(&res.tokens.refresh_token);
-    Ok(res)
+    request_json("POST", "/api/v1/auth/login", Some(req)).await
+}
+
+#[derive(Serialize, Default)]
+struct RefreshRequest {
+    refresh_token: String,
 }
 
 pub async fn refresh_token() -> Result<AuthResponse, String> {
-    let refresh_token: Result<String, StorageError> = LocalStorage::get("refresh_token");
-    let refresh_token = refresh_token.map_err(|_| "No refresh token".to_string())?;
-    let req = serde_json::json!({ "refresh_token": refresh_token });
-    let res: AuthResponse = request_json("POST", "/api/v1/auth/refresh", Some(&req)).await?;
-    set_token(&res.tokens.access_token);
-    set_refresh_token(&res.tokens.refresh_token);
-    Ok(res)
+    let refresh_token: String = LocalStorage::get("refresh_token").map_err(|e| e.to_string())?;
+    let req = RefreshRequest { refresh_token };
+    request_json("POST", "/api/v1/auth/refresh", Some(req)).await
 }
 
 pub async fn logout() -> Result<(), String> {
-    let _: serde_json::Value = request_json("POST", "/api/v1/auth/logout", None).await?;
+    let _: serde_json::Value = request_json("POST", "/api/v1/auth/logout", Some(())).await?;
     clear_token();
     Ok(())
 }
 
 pub async fn get_me() -> Result<UserResponse, String> {
-    request_json("GET", "/api/v1/auth/me", None).await
+    request_json("GET", "/api/v1/auth/me", Some(())).await
 }
 
 pub async fn list_files(parent_id: Option<i64>, page: i64, page_size: i64) -> Result<PaginatedResponse<FileEntry>, String> {
@@ -104,24 +98,37 @@ pub async fn list_files(parent_id: Option<i64>, page: i64, page_size: i64) -> Re
     if let Some(pid) = parent_id {
         url.push_str(&format!("&parent_id={}", pid));
     }
-    request_json("GET", &url, None).await
+    request_json("GET", &url, Some(())).await
+}
+
+#[derive(Serialize, Default)]
+struct CreateFolderBody {
+    name: String,
+    parent_id: Option<i64>,
 }
 
 pub async fn create_folder(req: CreateFolderRequest) -> Result<FileEntry, String> {
-    request_json("POST", "/api/v1/files/folder", Some(&req)).await
+    let body = CreateFolderBody { name: req.name, parent_id: req.parent_id };
+    request_json("POST", "/api/v1/files/folder", Some(body)).await
 }
 
 pub async fn get_file(id: i64) -> Result<FileEntry, String> {
-    request_json("GET", &format!("/api/v1/files/{}", id), None).await
+    request_json("GET", &format!("/api/v1/files/{}", id), Some(())).await
+}
+
+#[derive(Serialize, Default)]
+struct UpdateFileBody {
+    name: Option<String>,
+    parent_id: Option<i64>,
 }
 
 pub async fn update_file(id: i64, name: Option<String>, parent_id: Option<i64>) -> Result<FileEntry, String> {
-    let req = UpdateFileRequest { name, parent_id };
-    request_json("PATCH", &format!("/api/v1/files/{}", id), Some(&req)).await
+    let body = UpdateFileBody { name, parent_id };
+    request_json("PATCH", &format!("/api/v1/files/{}", id), Some(body)).await
 }
 
 pub async fn delete_file(id: i64) -> Result<(), String> {
-    let _: serde_json::Value = request_json("DELETE", &format!("/api/v1/files/{}", id), None).await?;
+    let _: serde_json::Value = request_json("DELETE", &format!("/api/v1/files/{}", id), Some(())).await?;
     Ok(())
 }
 
@@ -130,11 +137,25 @@ pub async fn download_file(id: i64) -> Result<String, String> {
 }
 
 pub async fn get_storage_quota() -> Result<StorageQuota, String> {
-    request_json("GET", "/api/v1/files/quota", None).await
+    request_json("GET", "/api/v1/files/quota", Some(())).await
+}
+
+#[derive(Serialize)]
+struct UploadInitiateBody {
+    filename: String,
+    size_bytes: i64,
+    mime_type: Option<String>,
+    parent_id: Option<i64>,
 }
 
 pub async fn initiate_upload(req: UploadInitiateRequest) -> Result<UploadInitiateResponse, String> {
-    request_json("POST", "/api/v1/uploads/initiate", Some(&req)).await
+    let body = UploadInitiateBody {
+        filename: req.filename,
+        size_bytes: req.size_bytes,
+        mime_type: req.mime_type,
+        parent_id: req.parent_id,
+    };
+    request_json("POST", "/api/v1/uploads/initiate", Some(body)).await
 }
 
 pub async fn upload_chunk(upload_id: Uuid, chunk_number: i32, data: Vec<u8>) -> Result<(), String> {
@@ -156,9 +177,9 @@ pub async fn upload_chunk(upload_id: Uuid, chunk_number: i32, data: Vec<u8>) -> 
 }
 
 pub async fn get_upload_status(upload_id: Uuid) -> Result<UploadStatusResponse, String> {
-    request_json("GET", &format!("/api/v1/uploads/{}/status", upload_id), None).await
+    request_json("GET", &format!("/api/v1/uploads/{}/status", upload_id), Some(())).await
 }
 
 pub async fn complete_upload(upload_id: Uuid) -> Result<FileEntry, String> {
-    request_json("POST", &format!("/api/v1/uploads/{}/complete", upload_id), None).await
+    request_json("POST", &format!("/api/v1/uploads/{}/complete", upload_id), Some(())).await
 }

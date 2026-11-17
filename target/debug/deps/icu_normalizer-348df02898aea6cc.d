@@ -1,0 +1,10 @@
+C:\Users\TANISHQ\AppData\Local\Temp\ar3mis-cloud-rust\target\debug\deps\icu_normalizer-348df02898aea6cc.d: C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\icu_normalizer-2.4.0\src\lib.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\icu_normalizer-2.4.0\src\properties.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\icu_normalizer-2.4.0\src\provider.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\icu_normalizer-2.4.0\src\uts46.rs
+
+C:\Users\TANISHQ\AppData\Local\Temp\ar3mis-cloud-rust\target\debug\deps\libicu_normalizer-348df02898aea6cc.rlib: C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\icu_normalizer-2.4.0\src\lib.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\icu_normalizer-2.4.0\src\properties.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\icu_normalizer-2.4.0\src\provider.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\icu_normalizer-2.4.0\src\uts46.rs
+
+C:\Users\TANISHQ\AppData\Local\Temp\ar3mis-cloud-rust\target\debug\deps\libicu_normalizer-348df02898aea6cc.rmeta: C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\icu_normalizer-2.4.0\src\lib.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\icu_normalizer-2.4.0\src\properties.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\icu_normalizer-2.4.0\src\provider.rs C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\icu_normalizer-2.4.0\src\uts46.rs
+
+C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\icu_normalizer-2.4.0\src\lib.rs:
+C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\icu_normalizer-2.4.0\src\properties.rs:
+C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\icu_normalizer-2.4.0\src\provider.rs:
+C:\Users\TANISHQ\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\icu_normalizer-2.4.0\src\uts46.rs:

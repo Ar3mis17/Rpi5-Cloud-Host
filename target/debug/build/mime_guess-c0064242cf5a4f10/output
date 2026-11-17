@@ -1,0 +1,1 @@
+cargo:rustc-env=MIME_TYPES_GENERATED_PATH=C:\Users\TANISHQ\AppData\Local\Temp\ar3mis-cloud-rust\target\debug\build\mime_guess-c0064242cf5a4f10\out\mime_types_generated.rs

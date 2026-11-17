@@ -19,7 +19,7 @@ pub fn DashboardPage() -> impl IntoView {
     let load_files = move || {
         spawn_local(async move {
             file_store.set_loading(true);
-            match crate::api::list_files(file_store.current_folder.get(), file_store.pagination.get().page, file_store.page_size.get()).await {
+            match crate::api::list_files(file_store.current_folder.get(), file_store.pagination.get().page, file_store.pagination.get().page_size).await {
                 Ok(response) => file_store.set_files(response),
                 Err(e) => {
                     file_store.set_loading(false);
@@ -38,7 +38,7 @@ pub fn DashboardPage() -> impl IntoView {
         let breadcrumbs = file_store.breadcrumbs.get();
         if breadcrumbs.len() > 1 {
             let parent_id = breadcrumbs[breadcrumbs.len() - 2].id;
-            file_store.set_current_folder(parent_id);
+            file_store.set_current_folder(Some(parent_id));
             load_files();
         } else {
             file_store.set_current_folder(None);
@@ -47,7 +47,8 @@ pub fn DashboardPage() -> impl IntoView {
     };
 
     let handle_new_folder = move |_| {
-        let name = prompt("Enter folder name:").unwrap_or_default();
+        let window = web_sys::window().unwrap();
+        let name = window.prompt_with_message("Enter folder name:").unwrap_or(None).unwrap_or_default();
         if !name.is_empty() {
             spawn_local(async move {
                 match crate::api::create_folder(CreateFolderRequest { name, parent_id: file_store.current_folder.get() }).await {
