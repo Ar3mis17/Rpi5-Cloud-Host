@@ -7,8 +7,10 @@ mod hooks;
 mod store;
 mod utils;
 
-use leptos::*;
-use leptos_router::*;
+use leptos::prelude::*;
+use leptos::mount::mount_to_body;
+use leptos::prelude::ElementChild;
+use leptos_router::components::*;
 use leptos_meta::*;
 
 use crate::app::App;

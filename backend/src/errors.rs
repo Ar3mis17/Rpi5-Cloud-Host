@@ -41,6 +41,14 @@ pub enum AppError {
     Storage(String),
     #[error("Upload error: {0}")]
     Upload(String),
+    #[error("Upload session not found")]
+    UploadNotFound,
+    #[error("Upload incomplete: missing chunks")]
+    UploadIncomplete,
+    #[error("Invalid chunk order")]
+    InvalidChunkOrder,
+    #[error("Quota exceeded")]
+    QuotaExceeded,
     #[error("Serialization error: {0}")]
     Serialization(#[from] serde_json::Error),
     #[error("UUID error: {0}")]

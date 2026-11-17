@@ -1,7 +1,12 @@
 ﻿//! Dashboard page component
 
 use leptos::prelude::*;
+use leptos::task::spawn_local;
 use leptos_router::hooks::use_navigate;
+use js_sys::wasm_bindgen::JsCast;
+use wasm_bindgen::closure::Closure;
+use web_sys::HtmlInputElement;
+use shared::{CreateFolderRequest, UploadInitiateRequest};
 use crate::store::{AuthStore, FileStore, UploadStore};
 
 #[component]
@@ -45,7 +50,7 @@ pub fn DashboardPage() -> impl IntoView {
         let name = prompt("Enter folder name:").unwrap_or_default();
         if !name.is_empty() {
             spawn_local(async move {
-                match crate::api::create_folder(crate::api::CreateFolderRequest { name, parent_id: file_store.current_folder.get() }).await {
+                match crate::api::create_folder(CreateFolderRequest { name, parent_id: file_store.current_folder.get() }).await {
                     Ok(_) => load_files(),
                     Err(e) => leptos::logging::error!("Failed to create folder: {}", e),
                 }
@@ -72,7 +77,7 @@ pub fn DashboardPage() -> impl IntoView {
                         let upload_store = upload_store.clone();
                         let auth_store = auth_store.clone();
                         spawn_local(async move {
-                            match crate::api::initiate_upload(crate::api::UploadInitiateRequest {
+                            match crate::api::initiate_upload(UploadInitiateRequest {
                                 filename: file_clone.name(),
                                 size_bytes: file_clone.size() as i64,
                                 mime_type: Some(file_clone.type_()),
@@ -140,7 +145,6 @@ pub fn DashboardPage() -> impl IntoView {
                                 <span class="text-sm text-gray-600">{move || auth_store.user.get().map(|u| u.username).unwrap_or_default()}</span>
                             </div>
                             <button on:click=move |_| {
-                                AuthStore::clear_token();
                                 auth_store.logout();
                                 navigate("/login", Default::default());
                             } class="text-sm text-gray-600 hover:text-gray-900">Sign out</button>
@@ -234,10 +238,21 @@ pub fn DashboardPage() -> impl IntoView {
                                                     }}
                                                     <div class="ml-4">
                                                         <div class="text-sm font-medium text-gray-900">
-                                                            {move || if is_folder {
-                                                                view! { <button on:click=move |_| handle_folder_click(file_id) class="text-indigo-600 hover:text-indigo-900">{file_name.clone()}</button> }
-                                                            } else {
-                                                                view! { <span>{file_name.clone()}</span> }
+                                                            {move || {
+                                                                let file_id = file_id;
+                                                                let handle_click = handle_folder_click.clone();
+                                                                view! {
+                                                                    <span
+                                                                        class=if is_folder { "text-indigo-600 hover:text-indigo-900 cursor-pointer" } else { "" }
+                                                                        on:click=move |_| {
+                                                                            if is_folder {
+                                                                                handle_click(file_id);
+                                                                            }
+                                                                        }
+                                                                    >
+                                                                        {file_name.clone()}
+                                                                    </span>
+                                                                }
                                                             }}
                                                         </div>
                                                     </div>
@@ -251,11 +266,9 @@ pub fn DashboardPage() -> impl IntoView {
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <div class="flex items-center justify-end gap-2">
-                                                    {move || if !is_folder {
-                                                        view! {
+                                                    {move || (!is_folder).then(|| view! {
                                                             <a href=format!("/api/v1/files/{}/download", file_id) class="text-indigo-600 hover:text-indigo-900">Download</a>
-                                                        }
-                                                    }}
+                                                        })}
                                                     <button class="text-red-600 hover:text-red-900">Delete</button>
                                                 </div>
                                             </td>

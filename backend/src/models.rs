@@ -38,6 +38,7 @@ pub struct File {
     pub size_bytes: i64,
     pub checksum: String,
     pub version: i32,
+    pub is_folder: bool,
     pub deleted_at: Option<DateTime<Utc>>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,

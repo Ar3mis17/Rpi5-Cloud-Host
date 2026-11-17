@@ -8,7 +8,7 @@ use axum::{
     response::Response,
 };
 use sqlx::PgPool;
-use crate::auth::{decode_token, get_token_username, generate_token_hash};
+use crate::auth_utils::{decode_token, get_token_username, generate_token_hash};
 use crate::errors::{AppError, AppResult};
 use crate::models::User;
 

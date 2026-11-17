@@ -1,15 +1,15 @@
 //! Custom hooks
 
-use leptos::*;
-use leptos_router::*;
+use leptos::prelude::*;
+use leptos_router::hooks::use_navigate as leptos_use_navigate;
 use crate::store::AuthStore;
 
 pub fn use_auth() -> AuthStore {
     expect_context::<AuthStore>()
 }
 
-pub fn use_navigate() -> impl Fn(&str, Default) + 'static {
-    let navigate = leptos_router::use_navigate();
+pub fn use_navigate() -> impl Fn(&str, leptos_router::NavigateOptions) + 'static {
+    let navigate = leptos_use_navigate();
     move |path, opts| navigate(path, opts)
 }
 

@@ -18,7 +18,7 @@ use crate::errors::AppResult;
 mod config;
 mod db;
 mod models;
-mod auth;
+mod auth_utils;
 mod errors;
 mod middleware;
 mod services;
@@ -66,7 +66,7 @@ async fn main() -> AppResult<()> {
 
     let uploads_router = Router::new()
         .route("/initiate", post(uploads::initiate_upload))
-        .route("/:upload_id/chunk", post(uploads::upload_chunk))
+        .route("/:upload_id/chunk", post(uploads::upload_chunk_with_query))
         .route("/:upload_id/status", get(uploads::get_upload_status))
         .route("/:upload_id/complete", post(uploads::complete_upload))
         .layer(axum::middleware::from_fn(auth_middleware));
@@ -83,7 +83,7 @@ async fn main() -> AppResult<()> {
         .nest("/uploads", uploads_router)
         .nest("/shares", shares_router)
         .merge(Router::new()
-            .route("/health", get(health::health_check))
+            .route("/health", get(health::health_check_handler))
             .route("/", get(health::root))
             .layer(axum::middleware::from_fn(optional_auth_middleware)));
 

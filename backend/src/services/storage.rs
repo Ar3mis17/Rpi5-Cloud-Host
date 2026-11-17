@@ -1,6 +1,6 @@
 //! Storage service
 
-use crate::errors::AppError;
+use crate::errors::{AppError, AppResult};
 use crate::models::{File, UploadSession};
 use sqlx::PgPool;
 use std::sync::Arc;
@@ -21,7 +21,7 @@ impl StorageService {
         Self { pool, upload_sessions }
     }
 
-    pub async fn check_quota(&self, user_id: i64, additional_bytes: i64) -> Result<(), AppError> {
+    pub async fn check_quota(&self, user_id: i64, additional_bytes: i64) -> AppResult<()> {
         let quota: Option<i64> = sqlx::query_scalar!(
             "SELECT quota_bytes FROM user_storage WHERE user_id = $1",
             user_id
@@ -51,70 +51,77 @@ impl StorageService {
         size_bytes: i64,
         mime_type: Option<String>,
         parent_id: Option<i64>,
-    ) -> Result<(Uuid, i64), AppError> {
+    ) -> AppResult<(Uuid, i64)> {
         self.check_quota(user_id, size_bytes).await?;
 
         let upload_id = Uuid::new_v4();
         let chunk_size = 1024 * 1024; // 1MB
-        let total_chunks = (size_bytes + chunk_size - 1) / chunk_size;
+        let total_chunks = ((size_bytes + chunk_size - 1) / chunk_size) as i32;
 
         let session = UploadSession {
             upload_id,
             user_id,
             filename,
             size_bytes,
-            mime_type,
+            mime_type: mime_type.unwrap_or_else(|| "application/octet-stream".to_string()),
             parent_id,
-            chunks_received: 0,
             total_chunks,
-            file_hash: Sha256::new(),
+            received_chunks: Vec::new(),
+            status: "pending".to_string(),
             created_at: chrono::Utc::now(),
+            updated_at: chrono::Utc::now(),
         };
 
         self.upload_sessions.lock().await.insert(upload_id, session);
-        Ok((upload_id, total_chunks))
+        Ok((upload_id, total_chunks as i64))
     }
 
     pub async fn upload_chunk(
         &self,
         upload_id: Uuid,
-        chunk_number: i64,
+        chunk_number: i32,
         data: Vec<u8>,
-    ) -> Result<(), AppError> {
+    ) -> AppResult<()> {
         let mut sessions = self.upload_sessions.lock().await;
         let session = sessions.get_mut(&upload_id).ok_or(AppError::UploadNotFound)?;
 
-        if chunk_number != session.chunks_received + 1 {
-            return Err(AppError::InvalidChunkOrder);
+        if !session.received_chunks.contains(&chunk_number) {
+            session.received_chunks.push(chunk_number);
+            session.received_chunks.sort();
+            session.updated_at = chrono::Utc::now();
+            if session.received_chunks.len() as i32 == session.total_chunks {
+                session.status = "completed".to_string();
+            }
+            Ok(())
+        } else {
+            Err(AppError::UploadNotFound)
         }
-
-        session.file_hash.update(&data);
-        session.chunks_received = chunk_number;
-        Ok(())
     }
 
-    pub async fn complete_upload(&self, upload_id: Uuid) -> Result<File, AppError> {
+    pub async fn complete_upload(&self, upload_id: Uuid) -> AppResult<File> {
         let mut sessions = self.upload_sessions.lock().await;
         let session = sessions.remove(&upload_id).ok_or(AppError::UploadNotFound)?;
 
-        if session.chunks_received != session.total_chunks {
+        if session.received_chunks.len() as i32 != session.total_chunks {
             return Err(AppError::UploadIncomplete);
         }
 
-        let file_hash = format!("{:x}", session.file_hash.finalize_reset());
+        let storage_key = format!("uploads/{}/{}", session.user_id, session.filename);
 
         let file = sqlx::query_as!(
             File,
-            r#"INSERT INTO files (owner_id, parent_id, name, mime_type, size_bytes, sha256_hash, storage_path, is_folder)
-               VALUES ($1, $2, $3, $4, $5, $6, $7, false)
-               RETURNING id, owner_id, parent_id, name, mime_type, size_bytes, sha256_hash, storage_path, is_folder, deleted_at, created_at, updated_at"#,
+            r#"INSERT INTO files (owner_id, parent_id, name, storage_key, mime_type, size_bytes, checksum, version, is_folder)
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+               RETURNING id, owner_id, parent_id, name, storage_key, mime_type, size_bytes, checksum, version, is_folder, deleted_at, created_at, updated_at"#,
             session.user_id,
             session.parent_id,
             session.filename,
+            storage_key,
             session.mime_type,
             session.size_bytes,
-            file_hash,
-            format!("uploads/{}/{}", session.user_id, session.filename)
+            String::new(),
+            1,
+            false
         )
         .fetch_one(&self.pool)
         .await?;
@@ -122,7 +129,7 @@ impl StorageService {
         Ok(file)
     }
 
-    pub async fn get_upload_status(&self, upload_id: Uuid) -> Result<Option<UploadSession>, AppError> {
+    pub async fn get_upload_status(&self, upload_id: Uuid) -> AppResult<Option<UploadSession>> {
         let sessions = self.upload_sessions.lock().await;
         Ok(sessions.get(&upload_id).cloned())
     }

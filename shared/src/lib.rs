@@ -170,6 +170,16 @@ pub struct CreateShareRequest {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SessionResponse {
+    pub id: i64,
+    pub device_name: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub expires_at: DateTime<Utc>,
+    pub revoked_at: Option<DateTime<Utc>>,
+    pub is_current: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ShareResponse {
     pub id: i64,
     pub file_id: i64,

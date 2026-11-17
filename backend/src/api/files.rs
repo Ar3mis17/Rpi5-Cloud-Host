@@ -19,6 +19,7 @@ pub struct ListFilesQuery {
 }
 
 fn file_to_entry(f: File) -> FileEntry {
+    let is_folder = f.mime_type == "application/vnd.ar3mis.folder";
     FileEntry {
         id: f.id,
         owner_id: f.owner_id,
@@ -29,7 +30,7 @@ fn file_to_entry(f: File) -> FileEntry {
         size_bytes: f.size_bytes,
         checksum: f.checksum,
         version: f.version,
-        is_folder: f.mime_type == "application/vnd.ar3mis.folder",
+        is_folder,
         deleted_at: f.deleted_at,
         created_at: f.created_at,
         updated_at: f.updated_at,
